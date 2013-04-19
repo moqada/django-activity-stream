@@ -11,7 +11,7 @@ def get_models():
     Only call this right before you need to inspect the models
     """
     models = {}
-    for model in SETTINGS.get('MODELS', ('auth.User',)):
+    for model in SETTINGS.get('MODELS', (get_user_model_name(),)):
         models[model.lower()] = get_model(*model.split('.'))
     return models
 
@@ -22,6 +22,13 @@ def get_action_manager():
     mod = SETTINGS.get('MANAGER', 'actstream.managers.ActionManager')
     a, j = mod.split('.'), lambda l: '.'.join(l)
     return getattr(__import__(j(a[:-1]), {}, {}, [a[-1]]), a[-1])()
+
+def get_user_model_name():
+    return getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+
+def get_user_model():
+    app_label, model = get_user_model_name().split('.')
+    return get_model(app_label, model)
 
 USE_PREFETCH = SETTINGS.get('USE_PREFETCH',
                             django.VERSION[0] == 1 and django.VERSION[1] >= 4)

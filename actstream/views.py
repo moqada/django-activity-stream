@@ -3,11 +3,12 @@ from django.template import RequestContext
 from django.http import HttpResponseRedirect, HttpResponse
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.views.decorators.csrf import csrf_exempt
 
 from actstream import actions, models
+
+user_model = actstream_settings.get_user_model()
 
 
 def respond(request, code):
@@ -44,7 +45,7 @@ def stream(request):
     github.com)
     """
     return render_to_response(('actstream/actor.html', 'activity/actor.html'), {
-        'ctype': ContentType.objects.get_for_model(User),
+        'ctype': ContentType.objects.get_for_model(user_model),
         'actor': request.user, 'action_list': models.user_stream(request.user)
     }, context_instance=RequestContext(request))
 
@@ -65,7 +66,7 @@ def following(request, user_id):
     """
     Returns a list of actors that the user identified by ``user_id`` is following (eg who im following).
     """
-    user = get_object_or_404(User, pk=user_id)
+    user = get_object_or_404(user_model, pk=user_id)
     return render_to_response(('actstream/following.html', 'activity/following.html'), {
         'following': models.following(user), 'user': user
     }, context_instance=RequestContext(request))
@@ -75,9 +76,9 @@ def user(request, username):
     """
     ``User`` focused activity stream. (Eg: Profile page twitter.com/justquick)
     """
-    user = get_object_or_404(User, username=username, is_active=True)
+    user = get_object_or_404(user_model, username=username, is_active=True)
     return render_to_response(('actstream/actor.html', 'activity/actor.html'), {
-        'ctype': ContentType.objects.get_for_model(User),
+        'ctype': ContentType.objects.get_for_model(user_model),
         'actor': user, 'action_list': models.user_stream(user)
     }, context_instance=RequestContext(request))
 

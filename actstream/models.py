@@ -5,7 +5,6 @@ from django.utils.translation import ugettext as _
 
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
 
 try:
     from django.utils import timezone
@@ -23,7 +22,7 @@ class Follow(models.Model):
     """
     Lets a user follow the activities of any specific actor
     """
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(actstream_settings.get_user_model())
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.CharField(max_length=255)
